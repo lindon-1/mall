@@ -2,6 +2,7 @@ package com.lindl.mall.pojo;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -14,8 +15,10 @@ public class MallResource {
 
     private Long id;
 
+    @NotNull
     private String permission;
 
+    @NotNull
     private String methodType;
 
     /**

@@ -22,6 +22,7 @@ public class ExceptionHandler extends Exception implements Serializable, Supplie
      */
     private String log;
 
+
     public ExceptionHandler(String message, String code, String log) {
         super(message);
         this.code = code;

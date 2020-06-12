@@ -1,5 +1,6 @@
 package com.lindl.mall.mapper;
 
+import com.lindl.mall.pojo.MallResource;
 import com.lindl.mall.pojo.MallRole;
 import com.lindl.mall.pojo.MallUser;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.annotation.Resource;
 
 import java.util.Date;
+import java.util.List;
 
 
 @SpringBootTest
@@ -18,6 +20,9 @@ class MallUserMapperTest {
 
     @Resource
     private MallRoleMapper mallRoleMapper;
+
+    @Resource
+    private MallResourceMapper mallResourceMapper;
 
     @Test
     public void test1() {
@@ -38,5 +43,11 @@ class MallUserMapperTest {
         System.out.println(byId);
         MallUser byId1 = mallUserMapper.findById(1L);
         System.out.println(byId1);
+    }
+
+    @Test
+    public void test2() {
+        List<MallResource> byRoleId = mallResourceMapper.findByRoleId(1L);
+        System.out.println(byRoleId);
     }
 }

@@ -1,5 +1,6 @@
 package com.lindl.mall.mapper;
 
+import com.lindl.mall.pojo.MallResource;
 import com.lindl.mall.pojo.MallUser;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.type.JdbcType;
@@ -56,4 +57,11 @@ public interface MallUserMapper {
             "update mall_user set username = #{username},password = #{password},gender=#{gender},birthday=#{birthday},nickname=#{nickname},mobile=#{mobile} where id = #{id}"
     })
     int modify(@Param("mallUser") MallUser mallUser);
+
+    @Select({
+            "<script>",
+            "select role_id from mall_user_role r, mall_user u where r.user_id = u.id ",
+            "</script>"
+    })
+    Long findRoleIdByUserId(@Param("id")Long id);
 }
