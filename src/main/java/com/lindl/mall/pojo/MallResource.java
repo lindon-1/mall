@@ -1,7 +1,6 @@
 package com.lindl.mall.pojo;
 
 import lombok.Data;
-
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
@@ -12,7 +11,8 @@ import java.util.Date;
  */
 @Data
 public class MallResource {
-
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull

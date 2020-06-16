@@ -1,15 +1,21 @@
 package com.lindl.mall.aop.aspect;
 
 import com.alibaba.fastjson.JSONObject;
+import com.lindl.mall.common.HttpResponse;
 import com.lindl.mall.common.exception.ExceptionFactory;
 import com.lindl.mall.common.exception.ExceptionMsg;
 import com.lindl.mall.mapper.MallResourceMapper;
 import com.lindl.mall.mapper.MallUserMapper;
 import com.lindl.mall.pojo.MallResource;
 import com.lindl.mall.pojo.MallUser;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -32,6 +38,7 @@ import java.util.stream.Collectors;
 @Order(2)
 @Aspect
 @Component
+@Slf4j
 public class TokenCheck {
 
     @Resource
@@ -46,16 +53,23 @@ public class TokenCheck {
     @Resource
     private MallResourceMapper mallResourceMapper;
 
-    @Before("execution(* com.lindl..*Controller.*(..)) && !execution(* com.lindl..LoginController.*(..))")
+    @Pointcut(value = "execution(* com.lindl.mall..*Controller.*(..))")
+    public void pointcut() {
+
+    }
+
+    @Before("execution(* com.lindl.mall..*Controller.*(..)) && !execution(* com.lindl.mall..LoginController.*(..))")
     public void before(JoinPoint joinPoint) throws Exception {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String token = request.getHeader("token");
 
         if(StringUtils.isEmpty(token)) {
+            log.error("error info:{}", ExceptionMsg.msg.get(ExceptionMsg.ERR_AUTHENCATION_ERROR));
             throw exceptionFactory.create(ExceptionMsg.ERR_AUTHENCATION_ERROR, ExceptionMsg.msg.get(ExceptionMsg.ERR_AUTHENCATION_ERROR));
         }
         String userInfoString = redisTemplate.opsForValue().get(token);
         if (StringUtils.isEmpty(userInfoString)) {
+            log.error("error info:{}", ExceptionMsg.msg.get(ExceptionMsg.ERR_AUTHENCATION_ISUNVALIDATE));
             throw exceptionFactory.create(ExceptionMsg.ERR_AUTHENCATION_ISUNVALIDATE, ExceptionMsg.msg.get(ExceptionMsg.ERR_AUTHENCATION_ISUNVALIDATE));
         }
 
@@ -68,12 +82,33 @@ public class TokenCheck {
         Long roleId = mallUserMapper.findRoleIdByUserId(mallUser.getId());
         List<MallResource> mallResources = mallResourceMapper.findByRoleId(roleId);
         if (CollectionUtils.isEmpty(mallResources)) {
+            log.error("error info:{}", ExceptionMsg.msg.get(ExceptionMsg.UNAUTHORTY_UNLESS));
             throw exceptionFactory.create(ExceptionMsg.UNAUTHORTY_UNLESS, ExceptionMsg.msg.get(ExceptionMsg.UNAUTHORTY_UNLESS));
         }
         List<MallResource> list = mallResources.stream().filter(e -> e.getPermission().equals(path) && e.getMethodType().equals(methodType)).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(list)) {
+            log.error("error info:{}", ExceptionMsg.msg.get(ExceptionMsg.UNAUTHORTY_UNLESS));
             throw exceptionFactory.create(ExceptionMsg.UNAUTHORTY_UNLESS, ExceptionMsg.msg.get(ExceptionMsg.UNAUTHORTY_UNLESS));
         }
 
+    }
+
+    /**
+     * 请求入参和返回参数日志
+     * @param proceedingJoinPoint
+     * @return
+     * @throws Throwable
+     */
+    @Around(value = "pointcut()")
+    public Object arround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        Signature signature = proceedingJoinPoint.getSignature();
+        Object target = proceedingJoinPoint.getTarget();
+        Class<?> targetClass = target.getClass();
+        String name = signature.getName();
+        Object[] args = proceedingJoinPoint.getArgs();
+        log.info(" class:{}; method : {} ; request parameters:{}",targetClass, name, args);
+        Object proceed = proceedingJoinPoint.proceed();
+        log.info("class:{}; method: {}; response info: {}", targetClass, name, proceed);
+        return proceed;
     }
 }
