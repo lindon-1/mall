@@ -85,7 +85,7 @@ public class TokenCheck {
             log.error("error info:{}", ExceptionMsg.msg.get(ExceptionMsg.UNAUTHORTY_UNLESS));
             throw exceptionFactory.create(ExceptionMsg.UNAUTHORTY_UNLESS, ExceptionMsg.msg.get(ExceptionMsg.UNAUTHORTY_UNLESS));
         }
-        List<MallResource> list = mallResources.stream().filter(e -> e.getPermission().equals(path) && e.getMethodType().equals(methodType)).collect(Collectors.toList());
+        List<MallResource> list = mallResources.stream().filter(e -> e.getPermission().equals(path) && e.getMethodType().equalsIgnoreCase(methodType)).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(list)) {
             log.error("error info:{}", ExceptionMsg.msg.get(ExceptionMsg.UNAUTHORTY_UNLESS));
             throw exceptionFactory.create(ExceptionMsg.UNAUTHORTY_UNLESS, ExceptionMsg.msg.get(ExceptionMsg.UNAUTHORTY_UNLESS));
