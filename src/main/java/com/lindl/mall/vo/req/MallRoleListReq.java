@@ -3,23 +3,14 @@ package com.lindl.mall.vo.req;
 import com.lindl.mall.common.constant.PagerConstant;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * @Description：
  * @Author: ldl
- * @CreateDate: 2020/6/12 14:23
+ * @CreateDate: 2020/6/18 16:28
  */
 @Data
-public class MallResourceListReq extends PagerConstant {
-
-    private String permission;
-
-    private String methodType;
-
-    private Date startTime;
-
-    private Date endTime;
+public class MallRoleListReq {
+    private String name;
 
     /**
      * 分页默认一页10条数据
@@ -30,4 +21,5 @@ public class MallResourceListReq extends PagerConstant {
      * 分页默认第一页
      */
     public Integer pageNum = PagerConstant.PAGE_NUM;
+
 }

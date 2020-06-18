@@ -68,7 +68,7 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public HttpResponse<MallResourceListRes> findList(HttpRequest<MallResourceListReq> request){
         MallResourceListReq data = request.getData();
-        PageHelper.startPage(data.getPAGE_DEFAULT_NUM(), data.getPAGE_DEFAULT_SIZE());
+        PageHelper.startPage(data.getPageNum(), data.getPageSize());
         List<MallResource> list = mallResourceMapper.findList(data);
         PageInfo<MallResource> pageInfo = PageInfo.of(list);
         log.info("pageInfo:{}", pageInfo);

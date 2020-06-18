@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public HttpResponse<MallUserListRes> findList(HttpRequest<MallUserListReq> request) {
         MallUserListReq mallUserListReq = request.getData();
-        PageHelper.startPage(mallUserListReq.getPAGE_DEFAULT_NUM(), mallUserListReq.getPAGE_DEFAULT_SIZE());
+        PageHelper.startPage(mallUserListReq.getPageNum(), mallUserListReq.pageSize);
         List<MallUser> list = mallUserMapper.findList(mallUserListReq.getUsername());
         PageInfo<MallUser> pageInfo = PageInfo.of(list);
         return HttpResponse.build(MallUserListRes.builder().pageInfo(pageInfo).build());
