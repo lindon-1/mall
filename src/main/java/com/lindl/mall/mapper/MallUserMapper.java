@@ -5,6 +5,7 @@ import com.lindl.mall.pojo.MallUser;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.type.JdbcType;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -57,6 +58,9 @@ public interface MallUserMapper {
             "update mall_user set username = #{username},password = #{password},gender=#{gender},birthday=#{birthday},nickname=#{nickname},mobile=#{mobile} where id = #{id}"
     })
     int modify(@Param("mallUser") MallUser mallUser);
+
+    @Update("update mall_user set last_login_ip=#{lastLoginIp}, last_login_time=now() where id =#{id}")
+    int modifyLoginIp(@Param("id")Long id, @Param("lastLoginIp")String lastLoginIp);
 
     @Select({
             "<script>",

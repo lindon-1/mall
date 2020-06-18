@@ -11,6 +11,7 @@ import com.lindl.mall.pojo.MallResource;
 import com.lindl.mall.pojo.MallRole;
 import com.lindl.mall.pojo.MallUser;
 import com.lindl.mall.service.LoginService;
+import com.lindl.mall.utils.IpUtils;
 import com.lindl.mall.utils.MD5Utils;
 import com.lindl.mall.vo.req.MallLoginReq;
 import com.lindl.mall.vo.res.MallInfoRes;
@@ -61,7 +62,7 @@ public class LoginServiceImpl implements LoginService {
     private RedisTemplate<String, String> redisTemplate;
 
     @Resource
-    private HttpServletRequest request;
+    private HttpServletRequest httpServletRequest;
 
     @Value("${auth.key:auth_key_pre_}")
     public  String key;
@@ -89,12 +90,13 @@ public class LoginServiceImpl implements LoginService {
         redisTemplate.opsForValue().set(token, userInfo, effectiveTime, TimeUnit.SECONDS);
 
         log.info("用户：{} 登录成功 token：{},userInfo:{}", id, token, userInfo);
+        mallUserMapper.modifyLoginIp(id, IpUtils.getIpAddr(httpServletRequest));
         return HttpResponse.build(MallLoginRes.builder().avatar(mallUser.getAvatar()).token(token).username(username).build());
     }
 
     @Override
     public HttpResponse loginOut() {
-        String token = request.getHeader("token");
+        String token = httpServletRequest.getHeader("token");
         if(!StringUtils.isEmpty(token)) {
             redisTemplate.delete(token);
         }
