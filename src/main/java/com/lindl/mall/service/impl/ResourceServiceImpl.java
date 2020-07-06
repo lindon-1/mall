@@ -12,6 +12,9 @@ import com.lindl.mall.service.ResourceService;
 import com.lindl.mall.vo.req.MallResourceListReq;
 import com.lindl.mall.vo.res.MallResourceListRes;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -19,6 +22,7 @@ import org.springframework.validation.BindingResult;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description：
@@ -35,6 +39,12 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Resource
     private ExceptionFactory exceptionFactory;
+
+    @Resource
+    private RedissonClient redissonClient;
+
+    @Value("${resource.cache.pre}")
+    public String resourceCacheKeyPre;
 
 
     @Override
@@ -81,7 +91,14 @@ public class ResourceServiceImpl implements ResourceService {
             throw exceptionFactory.create(ExceptionMsg.ERROR_PARAMTER_MISS, ExceptionMsg.msg.get(ExceptionMsg.ERROR_PARAMTER_MISS));
         }
         MallResource data = request.getData();
-        int update = mallResourceMapper.update(data);
+        int update = 0;
+        RLock lock = redissonClient.getLock(resourceCacheKeyPre + data.getId());
+        try {
+            lock.lock();
+            update = mallResourceMapper.update(data);
+        }  finally {
+            lock.unlock();
+        }
         if (update != 1) {
             throw exceptionFactory.create(ExceptionMsg.ERR_UPDATE, ExceptionMsg.msg.get(ExceptionMsg.ERR_UPDATE));
         }

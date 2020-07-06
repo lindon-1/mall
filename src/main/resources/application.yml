@@ -51,3 +51,7 @@ auth:
 user:
   info: user_
 
+resource:
+  cache:
+    pre: RESOURCE:PRE_
+
