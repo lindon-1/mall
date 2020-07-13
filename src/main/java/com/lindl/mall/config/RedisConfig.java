@@ -20,7 +20,15 @@ public class RedisConfig {
 //        RedissonClient redisson = Redisson.create();
 
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://192.168.44.128:6379");
+        //单redis节点配置
+        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
+        //主从节点配置
+//        config.useMasterSlaveServers()
+//                //可以用"rediss://"来启用SSL连接
+//                .setMasterAddress("redis://192.168.44.128:6379")
+//                .addSlaveAddress("redis://192.168.44.128:6380");
+//                .addSlaveAddress("redis://192.168.44.128:6381");
+
         return Redisson.create(config);
     }
 }

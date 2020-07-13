@@ -1,10 +1,16 @@
 package com.lindl.mall.mapper;
 
 import com.alibaba.fastjson.JSONArray;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.lindl.mall.dbcache.DbcacheByRedis;
 import com.lindl.mall.pojo.MallResource;
 import com.lindl.mall.pojo.MallRole;
 import com.lindl.mall.pojo.MallUser;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RKeys;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -38,6 +44,32 @@ class MallUserMapperTest {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
+    @Resource
+    private RedissonClient redissonClient;
+
+    @Resource
+    private DbcacheByRedis<Long, List<MallResource>> dbcacheByRedis;
+
+    @Test
+    public void testRedisson() {
+        RLock ddd = redissonClient.getLock("ddd");
+        System.out.println(ddd.getName());
+
+    }
+
+    @Test
+    public void testJwt() {
+
+        String id = "123456";
+        String token = JWT.create().withAudience(id).sign(Algorithm.HMAC256("lindl"));
+        System.out.println(token);
+    }
+
+    @Test
+    public void testJwt2() {
+        List<String> audience = JWT.decode("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMjM0NTYifQ.-TCXt97zw5LmRk7UmOIBulQcns7MuS4XkHEQkdpIdP4").getAudience();
+        System.out.println(audience.get(0));
+    }
     @Test
     public void testRedis() throws Exception{
         List<MallUser> list = mallUserMapper.findList(null);
@@ -88,5 +120,12 @@ class MallUserMapperTest {
     public void test2() {
         List<MallResource> byRoleId = mallResourceMapper.findByRoleId(1L);
         System.out.println(byRoleId);
+    }
+
+    @Test
+    public void test3() {
+        Long id = 1L;
+        List<MallResource> data = dbcacheByRedis.getData(id, t -> mallResourceMapper.findByRoleId(t));
+        System.out.println(data);
     }
 }
