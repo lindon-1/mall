@@ -48,7 +48,7 @@ class MallUserMapperTest {
     private RedissonClient redissonClient;
 
     @Resource
-    private DbcacheByRedis<Long, List<MallResource>> dbcacheByRedis;
+    private DbcacheByRedis dbcacheByRedis;
 
     @Test
     public void testRedisson() {

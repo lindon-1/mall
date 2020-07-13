@@ -14,12 +14,12 @@ import java.util.function.Function;
  * @CreateDate: 2020/7/13 15:14
  */
 @Component
-public class DbcacheByRedis<T,R> {
+public class DbcacheByRedis{
 
     @Resource
-    private RedisTemplate<Long, R> redisTemplate;
+    private RedisTemplate<Long, Object> redisTemplate;
 
-    public  R getData(Long id, Function<Long, R> function) {
+    public  <R> R  getData(Long id, Function<Long, R> function) {
         long start = System.currentTimeMillis();
         if (id == null) {
             return null;
